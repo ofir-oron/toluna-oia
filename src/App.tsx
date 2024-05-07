@@ -2,7 +2,6 @@ import { useState, useRef, useEffect } from "react";
 import "./App.css";
 
 type TKeyPressEventData = {
-  type: string;
   keyCode: number;
   keyCodeChar: string;
   shiftKey: boolean;
@@ -27,7 +26,9 @@ function App() {
       ...prevState,
       {
         name,
-        startTime: startTime - initialTime.current,
+        startTime: Math.round(
+          startTime - initialTime.current + Number.EPSILON * 100,
+        ),
         detail,
       },
     ]);
@@ -52,11 +53,10 @@ function App() {
     const handleKeyPress = (evt: KeyboardEvent) => {
       const { type, keyCode, timeStamp, shiftKey, altKey, ctrlKey } = evt;
       const mark = performance.mark(`textarea:${type}`, {
-        detail: { type, keyCode, timeStamp, shiftKey, altKey, ctrlKey },
+        detail: { keyCode, timeStamp, shiftKey, altKey, ctrlKey },
       });
 
       updateTimingWithNewMark(mark, {
-        type,
         keyCode,
         keyCodeChar: String.fromCharCode(keyCode),
         shiftKey,
