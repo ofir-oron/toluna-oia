@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import "./App.css";
+import Package from "../package.json";
 
 type TKeyPressEventData = {
   keyCode: number;
@@ -106,6 +107,7 @@ function App() {
           value={JSON.stringify(keyTimingData, null, 4)}
           style={{ width: "90vw", height: "50vh", margin: 10 }}
         ></textarea>
+        <i>v{Package.version}</i>
       </div>
     </>
   );
