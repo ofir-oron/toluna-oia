@@ -107,6 +107,8 @@ function App() {
           value={JSON.stringify(keyTimingData, null, 4)}
           style={{ width: "90vw", height: "50vh", margin: 10 }}
         ></textarea>
+      </div>
+      <div>
         <i>v{Package.version}</i>
       </div>
     </>
