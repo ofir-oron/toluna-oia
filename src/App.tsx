@@ -4,7 +4,7 @@ import "./App.css";
 type TKeyPressEventData = {
   type: string;
   keyCode: number;
-  key: string;
+  keyCodeChar: string;
   shiftKey: boolean;
   altKey: boolean;
   ctrlKey: boolean;
@@ -12,25 +12,28 @@ type TKeyPressEventData = {
 
 function App() {
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
-  const focusTime = useRef(0);
-  const [keyTimingData, setKeyTimingData] = useState<PerformanceMark[]>([]);
+  const outputRef = useRef<HTMLTextAreaElement>(null);
+  const initialTime = useRef(0);
+  const [keyTimingData, setKeyTimingData] = useState<
+    Partial<PerformanceMark>[]
+  >([]);
 
   const updateTimingWithNewMark = (
     mark: PerformanceMark,
     detail?: TKeyPressEventData,
   ) => {
+    const { name, startTime } = mark.toJSON();
     setKeyTimingData((prevState) => [
       ...prevState,
       {
-        ...mark.toJSON(),
-        startTime: mark.startTime - focusTime.current,
+        name,
+        startTime: startTime - initialTime.current,
         detail,
       },
     ]);
   };
 
   const handleFocus = () => {
-    focusTime.current = performance.now();
     const mark = performance.mark("textarea:focus");
     updateTimingWithNewMark(mark);
   };
@@ -42,6 +45,7 @@ function App() {
   };
 
   useEffect(() => {
+    initialTime.current = performance.now();
     performance.setResourceTimingBufferSize(50000);
     const textareaEl = textAreaRef.current;
 
@@ -54,7 +58,7 @@ function App() {
       updateTimingWithNewMark(mark, {
         type,
         keyCode,
-        key: String.fromCharCode(keyCode),
+        keyCodeChar: String.fromCharCode(keyCode),
         shiftKey,
         altKey,
         ctrlKey,
@@ -68,16 +72,22 @@ function App() {
 
     textareaEl?.addEventListener("keydown", handleKeyPress);
     textareaEl?.addEventListener("keyup", handleKeyPress);
-    document.body.addEventListener("click", handleMouseEvent);
-    document.body.addEventListener("dblclick", handleMouseEvent);
+    textareaEl?.addEventListener("click", handleMouseEvent);
+    textareaEl?.addEventListener("dblclick", handleMouseEvent);
 
     return () => {
       textareaEl?.removeEventListener("keydown", handleKeyPress);
       textareaEl?.removeEventListener("keyup", handleKeyPress);
-      document.body.removeEventListener("click", handleMouseEvent);
-      document.body.removeEventListener("dblclick", handleMouseEvent);
+      textareaEl?.removeEventListener("click", handleMouseEvent);
+      textareaEl?.removeEventListener("dblclick", handleMouseEvent);
     };
   }, []);
+
+  useEffect(() => {
+    if (outputRef.current) {
+      outputRef.current.scrollTop = outputRef.current.scrollHeight;
+    }
+  }, [keyTimingData]);
 
   return (
     <>
@@ -86,14 +96,15 @@ function App() {
           ref={textAreaRef}
           onFocus={handleFocus}
           onBlur={handleBlur}
-          style={{ width: 300, height: 100, margin: 10 }}
+          style={{ width: "90vw", height: 100, margin: 10 }}
         ></textarea>
       </div>
       <div>
         <textarea
+          ref={outputRef}
           readOnly
           value={JSON.stringify(keyTimingData, null, 4)}
-          style={{ width: 300, height: 100, margin: 10 }}
+          style={{ width: "90vw", height: "50vh", margin: 10 }}
         ></textarea>
       </div>
     </>
