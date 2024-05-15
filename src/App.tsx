@@ -1,112 +1,43 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect } from "react";
 import "./App.css";
 import Package from "../package.json";
+import OpenEnd from "./OpenEnd";
+import { Light as SyntaxHighlighter } from "react-syntax-highlighter";
+import json from "react-syntax-highlighter/dist/esm/languages/hljs/json";
+import dark from "react-syntax-highlighter/dist/esm/styles/hljs/a11y-dark";
 
-type TKeyPressEventData = {
-  keyCode: number;
-  keyCodeChar: string;
-  shiftKey: boolean;
-  altKey: boolean;
-  ctrlKey: boolean;
-};
+SyntaxHighlighter.registerLanguage("json", json);
 
 function App() {
-  const textAreaRef = useRef<HTMLTextAreaElement>(null);
-  const outputRef = useRef<HTMLTextAreaElement>(null);
-  const initialTime = useRef(0);
-  const [keyTimingData, setKeyTimingData] = useState<
+  const [openEndEventData, setOpenEndEventData] = useState<
     Partial<PerformanceMark>[]
   >([]);
 
-  const updateTimingWithNewMark = (
-    mark: PerformanceMark,
-    detail?: TKeyPressEventData,
-  ) => {
-    const { name, startTime } = mark.toJSON();
-    setKeyTimingData((prevState) => [
-      ...prevState,
-      {
-        name,
-        startTime: Math.round(
-          startTime - initialTime.current + Number.EPSILON * 100,
-        ),
-        detail,
-      },
-    ]);
-  };
-
-  const handleFocus = () => {
-    const mark = performance.mark("textarea:focus");
-    updateTimingWithNewMark(mark);
-  };
-
-  const handleBlur = () => {
-    const mark = performance.mark(`textarea:blur`);
-    updateTimingWithNewMark(mark);
-    performance.clearMarks();
-  };
-
   useEffect(() => {
-    initialTime.current = performance.now();
-    performance.setResourceTimingBufferSize(50000);
-    const textareaEl = textAreaRef.current;
-
-    const handleKeyPress = (evt: KeyboardEvent) => {
-      const { type, keyCode, timeStamp, shiftKey, altKey, ctrlKey } = evt;
-      const mark = performance.mark(`textarea:${type}`, {
-        detail: { keyCode, timeStamp, shiftKey, altKey, ctrlKey },
-      });
-
-      updateTimingWithNewMark(mark, {
-        keyCode,
-        keyCodeChar: String.fromCharCode(keyCode),
-        shiftKey,
-        altKey,
-        ctrlKey,
-      });
-    };
-
-    const handleMouseEvent = (evt: MouseEvent) => {
-      const mark = performance.mark(`mouseevent:${evt.type}`);
-      updateTimingWithNewMark(mark);
-    };
-
-    textareaEl?.addEventListener("keydown", handleKeyPress);
-    textareaEl?.addEventListener("keyup", handleKeyPress);
-    textareaEl?.addEventListener("click", handleMouseEvent);
-    textareaEl?.addEventListener("dblclick", handleMouseEvent);
-
-    return () => {
-      textareaEl?.removeEventListener("keydown", handleKeyPress);
-      textareaEl?.removeEventListener("keyup", handleKeyPress);
-      textareaEl?.removeEventListener("click", handleMouseEvent);
-      textareaEl?.removeEventListener("dblclick", handleMouseEvent);
-    };
-  }, []);
-
-  useEffect(() => {
-    if (outputRef.current) {
-      outputRef.current.scrollTop = outputRef.current.scrollHeight;
-    }
-  }, [keyTimingData]);
+    const [pre] = document.getElementsByTagName("pre");
+    pre.scrollTop = pre.scrollHeight;
+  }, [openEndEventData]);
 
   return (
     <>
       <div>
-        <textarea
-          ref={textAreaRef}
-          onFocus={handleFocus}
-          onBlur={handleBlur}
-          style={{ width: "90vw", height: 100, margin: 10 }}
-        ></textarea>
+        <OpenEnd onEvent={(data) => setOpenEndEventData(data)} />
       </div>
       <div>
-        <textarea
-          ref={outputRef}
-          readOnly
-          value={JSON.stringify(keyTimingData, null, 4)}
-          style={{ width: "90vw", height: "50vh", margin: 10 }}
-        ></textarea>
+        <SyntaxHighlighter
+          customStyle={{
+            width: "90vw",
+            height: "calc(100vh - 300px)",
+            margin: 10,
+            textAlign: "left",
+          }}
+          showLineNumbers={true}
+          style={dark}
+          language="json"
+          wrapLongLines={true}
+        >
+          {JSON.stringify(openEndEventData, null, 4)}
+        </SyntaxHighlighter>
       </div>
       <div>
         <i>v{Package.version}</i>
