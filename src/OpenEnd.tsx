@@ -86,7 +86,7 @@ const OpenEnd = ({ onEvent }: IOpenEndProps) => {
 
       updateTimingWithNewMark(mark, {
         target: {
-          type: domElement?.type,
+          type: (domElement as HTMLObjectElement)?.type ?? "unknown",
           attributes: [
             ...Array.from((domElement as HTMLElement).attributes)
               .filter((node) => node.name !== "style")
