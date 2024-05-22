@@ -99,12 +99,12 @@ const OpenEnd = ({ onEvent }: IOpenEndProps) => {
       });
     };
 
-    const handleInputEvent = (evt: Event) => {
-      const mark = performance.mark(`textarea:${evt.type}`);
-      updateTimingWithNewMark(mark, {
-        value: (evt.target as HTMLTextAreaElement).value ?? "",
-      });
-    };
+    // const handleInputEvent = (evt: Event) => {
+    //   const mark = performance.mark(`textarea:${evt.type}`);
+    //   updateTimingWithNewMark(mark, {
+    //     value: (evt.target as HTMLTextAreaElement).value ?? "",
+    //   });
+    // };
 
     const handlePasteEvent = (evt: ClipboardEvent) => {
       const mark = performance.mark(`textarea:${evt.type}`);
@@ -119,7 +119,7 @@ const OpenEnd = ({ onEvent }: IOpenEndProps) => {
     textareaEl?.addEventListener("contextmenu", handleMouseEvent);
     textareaEl?.addEventListener("dblclick", handleMouseEvent);
     textareaEl?.addEventListener("paste", handlePasteEvent);
-    textareaEl?.addEventListener("input", handleInputEvent);
+    //textareaEl?.addEventListener("input", handleInputEvent);
 
     return () => {
       textareaEl?.removeEventListener("keydown", handleKeyPress);
@@ -128,7 +128,7 @@ const OpenEnd = ({ onEvent }: IOpenEndProps) => {
       textareaEl?.removeEventListener("contextmenu", handleMouseEvent);
       textareaEl?.removeEventListener("dblclick", handleMouseEvent);
       textareaEl?.removeEventListener("paste", handlePasteEvent);
-      textareaEl?.removeEventListener("input", handleInputEvent);
+      //textareaEl?.removeEventListener("input", handleInputEvent);
     };
   }, []);
 
