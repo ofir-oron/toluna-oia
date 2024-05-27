@@ -1,3 +1,4 @@
+git pull
 npm version patch
 npm run build
 git add *.*
