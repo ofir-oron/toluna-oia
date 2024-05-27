@@ -40,7 +40,7 @@ const OpenEnd = ({ onEvent }: IOpenEndProps) => {
         timestamp: Math.round(
           startTime - initialTime.current + Number.EPSILON * 100,
         ),
-        detail,
+        details: detail,
       },
     ]);
   };
